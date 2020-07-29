@@ -1,0 +1,238 @@
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"A datetime and timezone string in ISO 8601 format `Y-m-dTH:i:sO`, e.g. `2020-04-20T13:53:12+02:00`."
+scalar DateTimeTz @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTimeTz")
+
+type Query {
+    GetAllUsers: [User!] @field(resolver: "Usuarios@GetAllUsuarios")
+    GetPlacas: [Placas!] @field(resolver: "Componentes@GetPlacas")
+    GetServicios: [Servicios!] @field(resolver: "Componentes@GetServicios")
+    GetAlmacenMotivos: [AlmacenMotivos!] @field(resolver: "Componentes@GetAlmacenMotivos")
+    GetProveedores: [Proveedores!] @field(resolver: "Componentes@GetProveedores")
+    GetTipoDocumento: [TipoDocumento!] @field(resolver: "Componentes@GetTipoDocumento")
+    GetTipoGasto: [TipoGastos!] @field(resolver: "Componentes@GetTipoGasto")
+    GetTipoMoneda: [TipoMoneda!] @field(resolver: "Componentes@GetTipoMoneda")
+    GetTipoUnidadGasto: [TipoUnidadGasto!] @field(resolver: "Componentes@GetTipoUnidadGasto")
+    GetTallerSolicitudesTipos: [TallerSolicitudesTipos!] @field(resolver: "Componentes@GetTallerSolicitudesTipos")
+    GetAllProductos(number_paginate:Int,page:Int,IdLinea:String): GetProductos @field(resolver: "Productos@GetAllProductos")
+    GetProducto(IdProducto:Int): AlmacenProductos @field(resolver: "Productos@GetProductosDetalle")
+
+    GetAllAlmacenMovimientos(number_paginate:Int,page:Int,IdMotivo:String): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
+    GetDetalleAlmacenMovimientos(id:Int): AlmacenMovimientos @field(resolver: "AlmacenMovimientos@GetDetalleAlmacenMovimientos")
+    GetAllServiciosGastos(number_paginate:Int,page:Int): GetServiciosGastos @field(resolver: "ServiciosGastos@GetAllServiciosGastos")
+    GetDetalleServiciosGastosDetalle(IdGasto:Int): ServiciosGastos @field(resolver: "ServiciosGastos@GetServiciosGastosDetalle")
+    GetAllTallerSolicitudes(number_paginate:Int,page:Int,estado:Int): GetTallerSolicitudes @field(resolver: "TallerSolicitudes@GetAllTallerSolicitudes")
+    GetDetalleTallerSolicitudes(IdSolicitud:Int): TallerSolicitudes @field(resolver: "TallerSolicitudes@GetDetalleTallerSolicitudes")
+    
+}
+type GetTallerSolicitudes{
+    NroItems:Int
+    data:[TallerSolicitudes!]
+}
+type GetServiciosGastos{
+    NroItems:Int
+    data:[ServiciosGastos!]
+}
+type GetAlamacenMovimiento{
+    NroItems:Int
+    data:[AlmacenMovimientos!]
+}
+type GetProductos{
+    NroItems:Int
+    data:[AlmacenProductos!]
+}
+type TallerSolicitudes{
+    IdSolicitud:Int
+    FechaRegistro:DateTime
+    IdTipo:Int
+    Detalle:String
+    Kilometraje:Float
+    IdPlaca:Int
+    Estado:Int
+    IdUsuario:Int
+    User:User
+    Placas:Placas
+    TallerSolicitudesTipos:TallerSolicitudesTipos
+}
+input TallerSolicitudesInput{
+    IdSolicitud:Int
+    FechaRegistro:Date
+    IdTipo:Int
+    Detalle:String
+    Kilometraje:Float
+    IdPlaca:Int
+    Estado:Int
+    IdUsuario:Int
+}
+type ServiciosGastos{
+    IdGasto:ID
+    IdTipoGasto:Int
+    IdServicio:Int
+    IdProveedor:Int
+    IdTipoDoc:Int
+    Serie:String
+    Numero:Int
+    Fecha:DateTime
+    Cantidad:Int
+    IdUnidad:Int
+    Detalle:String
+    IdMoneda:Int
+    Importe:Float
+    FechaRegistro:String
+    IdUsuario:Int
+    Servicios:Servicios
+    TipoDocumento:TipoDocumento
+    TipoMoneda:TipoMoneda
+    User:User
+
+}
+input ServiciosGastosInput{
+    IdGasto:ID
+    IdTipoGasto:Int
+    IdServicio:Int
+    IdProveedor:Int
+    IdTipoDoc:Int
+    Serie:String
+    Numero:Int
+    Fecha:Date
+    Cantidad:Int
+    IdUnidad:Int
+    Detalle:String
+    IdMoneda:Int
+    Importe:Float
+    FechaRegistro:DateTime
+    IdUsuario:Int
+}
+type AlmacenMovimientos{
+    Id:ID
+    Fecha:DateTime
+    Numero:String
+    IdMotivo:Int
+    IdProducto:Int
+    Ingresos:Int
+    Salidas:Int
+    Detalle:String
+    IdPlaca:Int
+    AlmacenMotivos:AlmacenMotivos
+    Producto:AlmacenProductos
+    Placa:Placas
+
+}
+input AlmacenMovimientosInput{
+    Id:ID
+    Fecha:Date
+    Numero:String
+    IdMotivo:Int
+    IdProducto:Int
+    Ingresos:Int
+    Salidas:Int
+    Detalle:String
+    IdPlaca:Int
+}
+type AlmacenProductos{
+    IdProducto:Int
+    IdLinea:Int
+    Codigo:String
+    Descripcion:String
+    Unidad:String
+    UndCantidad:Int
+    StockActual:Int
+}
+type TallerSolicitudesTipos{
+    IdTipo:ID
+    Descripcion:String
+}
+type AlmacenMotivos{
+    IdMotivo:ID
+    Descripcion:String
+    Tipo:Int
+}
+type Proveedores{
+    ID:ID
+    RAZON:String
+    RUC:String
+}
+type TipoUnidadGasto{
+    IdUnidad:ID
+    NmUnidad:String
+}
+type TipoMoneda{
+    IdMoneda:ID
+    NmMoneda:String
+}
+type TipoGastos{
+    IdTipoGasto:ID
+    Descripcion:String
+}
+type TipoDocumento{
+    IdTipoDoc:ID
+    Descripcion:String
+}
+type Servicios{
+    IdServicio:ID
+    FechaSalida:DateTime
+    Origen:String
+    Destino:String
+    Placa1:String
+    IdChofer:Int
+}
+type User {
+    IdUsuario: ID
+    NmUsuario: String
+    IdPerfil: Int
+    IdChofer: Int
+    token:String
+    Password:String
+}
+input UserInput {
+    IdUsuario: ID
+    NmUsuario: String
+    IdPerfil: Int
+    IdChofer: Int
+    token:String
+    Password:String
+}
+type Placas{
+    ID:ID
+    PLACA:String
+}
+type Mutation {
+    Login(
+        input:UserInput! @spread
+    ):User @field(resolver: "AuthMutator@Login")
+
+    CreateAlmacenMovimientos(
+        input:AlmacenMovimientosInput! @spread
+    ):AlmacenMovimientos @field(resolver: "CrudAlmacenMovimientos@Create")
+    UpdateAlmacenMovimientos(
+        input:AlmacenMovimientosInput! @spread
+    ):AlmacenMovimientos @field(resolver: "CrudAlmacenMovimientos@Update")
+    DeleteAlmacenMovimientos(
+        input:AlmacenMovimientosInput! @spread
+    ):String @field(resolver: "CrudAlmacenMovimientos@Delete")
+
+    CreateServicioGastos(
+        input:ServiciosGastosInput! @spread
+    ):ServiciosGastos @field(resolver: "CrudServiciosGastos@Create")
+    UpdateServicioGastos(
+        input:ServiciosGastosInput! @spread
+    ):ServiciosGastos @field(resolver: "CrudServiciosGastos@Update")
+    DeleteServicioGastos(
+        input:ServiciosGastosInput! @spread
+    ):String @field(resolver: "CrudServiciosGastos@Delete")
+
+
+    CreateTallerSolicitudes(
+        input:TallerSolicitudesInput! @spread
+    ):TallerSolicitudes @field(resolver: "CrudTallerSolicitudes@Create")
+    UpdateTallerSolicitudes(
+        input:TallerSolicitudesInput! @spread
+    ):TallerSolicitudes @field(resolver: "CrudTallerSolicitudes@Update")
+    DeleteTallerSolicitudes(
+        input:TallerSolicitudesInput! @spread
+    ):String @field(resolver: "CrudTallerSolicitudes@Delete")
+}
