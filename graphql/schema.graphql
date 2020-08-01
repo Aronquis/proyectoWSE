@@ -19,7 +19,9 @@ type Query {
     GetTipoUnidadGasto: [TipoUnidadGasto!] @field(resolver: "Componentes@GetTipoUnidadGasto")
     GetTallerSolicitudesTipos: [TallerSolicitudesTipos!] @field(resolver: "Componentes@GetTallerSolicitudesTipos")
     GetAllProductos(number_paginate:Int,page:Int,IdLinea:String): GetProductos @field(resolver: "Productos@GetAllProductos")
+    GetAlmacenLineas: [AlmacenLineas!] @field(resolver: "Productos@GetAllAlmacenLineas")
     GetProducto(IdProducto:Int): AlmacenProductos @field(resolver: "Productos@GetProductosDetalle")
+    
 
     GetAllAlmacenMovimientos(number_paginate:Int,page:Int,IdMotivo:String): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
     GetDetalleAlmacenMovimientos(id:Int): AlmacenMovimientos @field(resolver: "AlmacenMovimientos@GetDetalleAlmacenMovimientos")
@@ -133,6 +135,11 @@ input AlmacenMovimientosInput{
     Detalle:String
     IdPlaca:Int
 }
+type AlmacenLineas{
+    IdLinea:Int
+    Descripcion:String
+    Activo:Int
+}
 type AlmacenProductos{
     IdProducto:Int
     IdLinea:Int
@@ -141,6 +148,7 @@ type AlmacenProductos{
     Unidad:String
     UndCantidad:Int
     StockActual:Int
+    AlmacenLineas:AlmacenLineas
 }
 type TallerSolicitudesTipos{
     IdTipo:ID

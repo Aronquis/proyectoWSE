@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 */
 
 Route::get('/', function () {
-    $ciudades=DB::table('DbWSE.dbo.AlmacenProductos')->get();
+    $ciudades=DB::table('DbWSE.dbo.vAlmacenLineas')->get();
     dd($ciudades);
-    return view('welcome');
+    //return view('welcome');
 });
