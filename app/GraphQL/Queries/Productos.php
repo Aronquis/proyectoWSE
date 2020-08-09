@@ -25,12 +25,39 @@ class Productos
     }
     public function GetAllProductos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $productos=DB::table('DbWSE.dbo.AlmacenProductos')
-            ->where('IdLinea','like','%'.$args['IdLinea'].'%')
-            ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
-        foreach($productos as $producto){
-            $producto->AlmacenLineas=DB::table('DbWSE.dbo.vAlmacenLineas')->where('IdLinea',$producto->IdLinea)->first();
+        if($args['IdLinea']!="" && $args['Descripcion']==""){
+            $productos=DB::table('DbWSE.dbo.AlmacenProductos')
+                ->where('IdLinea','like','%'.$args['IdLinea'].'%')
+                ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            foreach($productos as $producto){
+                $producto->AlmacenLineas=DB::table('DbWSE.dbo.vAlmacenLineas')->where('IdLinea',$producto->IdLinea)->first();
+            }
         }
+        if($args['IdLinea']!="" && $args['Descripcion']!=""){
+            $productos=DB::table('DbWSE.dbo.AlmacenProductos')
+                ->where('IdLinea','like','%'.$args['IdLinea'].'%')
+                ->where('Descripcion','like','%'.$args['Descripcion'].'%')
+                ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            foreach($productos as $producto){
+                $producto->AlmacenLineas=DB::table('DbWSE.dbo.vAlmacenLineas')->where('IdLinea',$producto->IdLinea)->first();
+            }
+        }
+        if($args['IdLinea']=="" && $args['Descripcion']!=""){
+            $productos=DB::table('DbWSE.dbo.AlmacenProductos')
+                ->where('Descripcion','like','%'.$args['Descripcion'].'%')
+                ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            foreach($productos as $producto){
+                $producto->AlmacenLineas=DB::table('DbWSE.dbo.vAlmacenLineas')->where('IdLinea',$producto->IdLinea)->first();
+            }
+        }
+        if($args['IdLinea']=="" && $args['Descripcion']==""){
+            $productos=DB::table('DbWSE.dbo.AlmacenProductos')
+                ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            foreach($productos as $producto){
+                $producto->AlmacenLineas=DB::table('DbWSE.dbo.vAlmacenLineas')->where('IdLinea',$producto->IdLinea)->first();
+            }
+        }
+        
         return ['NroItems'=>$productos->total(),'data'=>$productos];
     }
     public function GetProductosDetalle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)

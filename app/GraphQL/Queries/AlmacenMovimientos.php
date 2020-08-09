@@ -19,18 +19,33 @@ class AlmacenMovimientos
     public function GetAllAlmacenMovimientos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $almacen_movimientos=DB::table('DbWSE.dbo.AlmacenMovimientos')
-        ->where('IdMotivo','like','%'.$args['IdMotivo'].'%')
-        ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
-        foreach($almacen_movimientos as $almacen){
-            $almacen->Producto=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$almacen->IdProducto)->first();
-            $almacen->Placa=DB::table('DbWSE.dbo.Placas')->where('ID',$almacen->IdPlaca)->first();
-            $almacen->AlmacenMotivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->where('IdMotivo',$almacen->IdMotivo)->first();
+            ->join('DbWSE.dbo.vAlmacenMotivos','DbWSE.dbo.vAlmacenMotivos.IdMotivo','=','DbWSE.dbo.AlmacenMovimientos.IdMotivo')
+            ->select('DbWSE.dbo.AlmacenMovimientos.*')
+            ->where('DbWSE.dbo.vAlmacenMotivos.Tipo',$args['Tipo'])
+            ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            foreach($almacen_movimientos as $almacen){
+                @$almacen->AlmacenMovDetalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                                                ->where('Id',$almacen->Id)
+                                                ->get();
+                foreach(@$almacen->AlmacenMovDetalle as $productos){
+                    $productos->Producto=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$productos->IdProducto)->first();
+                }
+                $almacen->Placa=DB::table('DbWSE.dbo.Placas')->where('ID',$almacen->IdPlaca)->first();
+                $almacen->AlmacenMotivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->where('IdMotivo',$almacen->IdMotivo)->first();
         }
+        
         return ['NroItems'=>$almacen_movimientos->total(),'data'=>$almacen_movimientos];
     }
     public function GetDetalleAlmacenMovimientos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $almacen_movimientos=DB::table('DbWSE.dbo.AlmacenMovimientos')->where('Id',$args['id'])->first();
+        @$almacen_movimientos->AlmacenMovDetalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                                    ->where('Id',$almacen_movimientos->Id)
+                                    ->get();
+        foreach(@$almacen_movimientos->AlmacenMovDetalle as $productos){
+            $productos->Producto=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$productos->IdProducto)->first();
+        }
+
         @$almacen_movimientos->Producto=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$almacen_movimientos->IdProducto)->first();
         @$almacen_movimientos->Placa=DB::table('DbWSE.dbo.Placas')->where('ID',$almacen_movimientos->IdPlaca)->first();
         @$almacen_movimientos->AlmacenMotivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->where('IdMotivo',$almacen_movimientos->IdMotivo)->first();

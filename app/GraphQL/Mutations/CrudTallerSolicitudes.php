@@ -41,7 +41,7 @@ class CrudTallerSolicitudes
         ///pendiente:1
         ///valido:2
         //invalido:3
-        if($args['Estado']!=""){
+        if(isset($args['Estado'])==true){
             DB::table('DbWSE.dbo.TallerSolicitudes')->where('IdSolicitud',$args['IdSolicitud'])->update([
                 'Estado'=>$args['Estado'],
             ]);

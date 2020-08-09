@@ -18,6 +18,27 @@ class CrudServiciosGastos
      */
     public function Create($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
+        $nameCreate="";
+        if(isset($args['Foto'])==true){
+            $image = $args['Foto'];
+            $arrNameFile = explode(".", $image->getClientOriginalName());
+            $extension = $arrNameFile[sizeof($arrNameFile) - 1];
+            $fileName = str_replace(' ', '',$arrNameFile[0]);
+            //////////////////////////////7777
+            //////////////validar nonbres
+            $nombre=DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.Foto',$fileName. '.' .$extension)->first();
+           
+            $fileNameNuevo=$fileName;
+            $i=1;
+            while (isset($nombre->id)==true) {
+                $nombre=DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.Foto',$fileName.'('.$i.')'.'.'.$extension)->first();
+                $fileNameNuevo=$fileName.'('.$i.')';
+                $i+=1; 
+            }
+            /////////////////////////////////
+            $nameCreate =$fileNameNuevo. '.' .'webp';
+            $image->storeAs('FotosServiciosGastos/', $nameCreate, 'local');
+        }
         DB::table('DbWSE.dbo.ServiciosGastos')->insert([
             'IdTipoGasto'=>$args['IdTipoGasto'],
             'IdServicio'=>$args['IdServicio'],
@@ -33,6 +54,7 @@ class CrudServiciosGastos
             'Importe'=>$args['Importe'],
             'FechaRegistro'=>date("Y-m-d").'T'.date("H:i:s"),
             'IdUsuario'=>$args['IdUsuario'],
+            'Foto'=>$nameCreate
         ]);
         $servicios_gastos=DB::table('DbWSE.dbo.ServiciosGastos')->get()->last();
         @$servicios_gastos->Servicios=DB::table('DbWSE.dbo.Servicios')->where('IdServicio',$servicios_gastos->IdServicio)->first();
@@ -44,6 +66,30 @@ class CrudServiciosGastos
     }
     public function Update($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
+        if(isset($args['Foto'])==true){
+            $image = $args['Foto'];
+            $arrNameFile = explode(".", $image->getClientOriginalName());
+            $extension = $arrNameFile[sizeof($arrNameFile) - 1];
+            $fileName = str_replace(' ', '',$arrNameFile[0]);
+            //////////////////////////////7777
+            //////////////validar nonbres
+            $nombre=DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.Foto',$fileName. '.' .$extension)->first();
+           
+            $fileNameNuevo=$fileName;
+            $i=1;
+            while (isset($nombre->id)==true) {
+                $nombre=DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.Foto',$fileName.'('.$i.')'.'.'.$extension)->first();
+                $fileNameNuevo=$fileName.'('.$i.')';
+                $i+=1; 
+            }
+            /////////////////////////////////
+
+            $nameCreate =$fileNameNuevo. '.' .'webp';
+            $image->storeAs('FotosServiciosGastos/', $nameCreate, 'local');
+            DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.IdGasto',$args['IdGasto'])->Update([
+                'Foto'=>$nameCreate,
+            ]); 
+        }
         DB::table('DbWSE.dbo.ServiciosGastos')->where('IdGasto',$args['IdGasto'])->update([
             'IdTipoGasto'=>$args['IdTipoGasto'],
             'IdServicio'=>$args['IdServicio'],

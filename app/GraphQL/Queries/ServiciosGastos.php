@@ -23,10 +23,26 @@ class ServiciosGastos
         foreach($servicios_gastos as $servicios){
             $servicios->Servicios=DB::table('DbWSE.dbo.Servicios')->where('IdServicio',$servicios->IdServicio)->first();
             $servicios->TipoDocumento=DB::table('DbWSE.dbo.TipoDocumentos')->where('IdTipoDoc',$servicios->IdTipoDoc)->first();
+            $servicios->TipoGastos=DB::table('DbWSE.dbo.TipoGastos')->where('IdTipoGasto',$servicios->IdTipoGasto)->first();
             $servicios->TipoMoneda=DB::table('DbWSE.dbo.TipoMonedas')->where('IdMoneda',$servicios->IdMoneda)->first();
             $servicios->User=DB::table('DbWSE.dbo.Usuarios')->where('IdUsuario',$servicios->IdUsuario)->first();
         }
         return ['NroItems'=>$servicios_gastos->total(),'data'=>$servicios_gastos];
+    }
+    public function GetServiciosGastos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        $servicios_gastos=DB::table('DbWSE.dbo.Servicios')
+                ->where('DbWSE.dbo.Servicios.IdServicio',$args['IdServicio'])
+                ->select('DbWSE.dbo.Servicios.*')
+                ->first();
+        @$servicios_gastos->ServiciosGastos=DB::table('DbWSE.dbo.ServiciosGastos')->where('IdServicio',$servicios_gastos->IdServicio)->get();
+        foreach(@$servicios_gastos->ServiciosGastos as $servicios){
+            $servicios->TipoDocumento=DB::table('DbWSE.dbo.TipoDocumentos')->where('IdTipoDoc',$servicios->IdTipoDoc)->first();
+            $servicios->TipoMoneda=DB::table('DbWSE.dbo.TipoMonedas')->where('IdMoneda',$servicios->IdMoneda)->first();
+            $servicios->TipoGastos=DB::table('DbWSE.dbo.TipoGastos')->where('IdTipoGasto',$servicios->IdTipoGasto)->first();
+            $servicios->User=DB::table('DbWSE.dbo.Usuarios')->where('IdUsuario',$servicios->IdUsuario)->first();
+        }
+        return $servicios_gastos;
     }
     public function GetServiciosGastosDetalle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
@@ -34,6 +50,7 @@ class ServiciosGastos
         @$servicios_gastos->Servicios=DB::table('DbWSE.dbo.Servicios')->where('IdServicio',$servicios_gastos->IdServicio)->first();
         @$servicios_gastos->TipoDocumento=DB::table('DbWSE.dbo.TipoDocumentos')->where('IdTipoDoc',$servicios_gastos->IdTipoDoc)->first();
         @$servicios_gastos->TipoMoneda=DB::table('DbWSE.dbo.TipoMonedas')->where('IdMoneda',$servicios_gastos->IdMoneda)->first();
+        @$servicios_gastos->TipoGastos=DB::table('DbWSE.dbo.TipoGastos')->where('IdTipoGasto',$servicios_gastos->IdTipoGasto)->first();
         @$servicios_gastos->User=DB::table('DbWSE.dbo.Usuarios')->where('IdUsuario',$servicios_gastos->IdUsuario)->first();
         return $servicios_gastos;
     }

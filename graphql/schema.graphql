@@ -7,6 +7,10 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 "A datetime and timezone string in ISO 8601 format `Y-m-dTH:i:sO`, e.g. `2020-04-20T13:53:12+02:00`."
 scalar DateTimeTz @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTimeTz")
 
+"Can be used as an argument to upload files using https://github.com/jaydenseric/graphql-multipart-request-spec"
+scalar Upload
+  @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
+
 type Query {
     GetAllUsers: [User!] @field(resolver: "Usuarios@GetAllUsuarios")
     GetPlacas: [Placas!] @field(resolver: "Componentes@GetPlacas")
@@ -18,18 +22,38 @@ type Query {
     GetTipoMoneda: [TipoMoneda!] @field(resolver: "Componentes@GetTipoMoneda")
     GetTipoUnidadGasto: [TipoUnidadGasto!] @field(resolver: "Componentes@GetTipoUnidadGasto")
     GetTallerSolicitudesTipos: [TallerSolicitudesTipos!] @field(resolver: "Componentes@GetTallerSolicitudesTipos")
-    GetAllProductos(number_paginate:Int,page:Int,IdLinea:String): GetProductos @field(resolver: "Productos@GetAllProductos")
+    GetAllProductos(number_paginate:Int,page:Int,IdLinea:String,Descripcion:String): GetProductos @field(resolver: "Productos@GetAllProductos")
     GetAlmacenLineas: [AlmacenLineas!] @field(resolver: "Productos@GetAllAlmacenLineas")
     GetProducto(IdProducto:Int): AlmacenProductos @field(resolver: "Productos@GetProductosDetalle")
     
 
-    GetAllAlmacenMovimientos(number_paginate:Int,page:Int,IdMotivo:String): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
+    GetAllAlmacenMovimientos(number_paginate:Int,page:Int,Tipo:Int): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
     GetDetalleAlmacenMovimientos(id:Int): AlmacenMovimientos @field(resolver: "AlmacenMovimientos@GetDetalleAlmacenMovimientos")
+
     GetAllServiciosGastos(number_paginate:Int,page:Int): GetServiciosGastos @field(resolver: "ServiciosGastos@GetAllServiciosGastos")
-    GetDetalleServiciosGastosDetalle(IdGasto:Int): ServiciosGastos @field(resolver: "ServiciosGastos@GetServiciosGastosDetalle")
+    GetServiciosGastosViaje(IdServicio:Int): Servicios @field(resolver: "ServiciosGastos@GetServiciosGastos")
+    GetDetalleServiciosGastosViaje(IdGasto:Int): ServiciosGastos @field(resolver: "ServiciosGastos@GetServiciosGastosDetalle")
+
     GetAllTallerSolicitudes(number_paginate:Int,page:Int,estado:Int): GetTallerSolicitudes @field(resolver: "TallerSolicitudes@GetAllTallerSolicitudes")
     GetDetalleTallerSolicitudes(IdSolicitud:Int): TallerSolicitudes @field(resolver: "TallerSolicitudes@GetDetalleTallerSolicitudes")
-    
+
+    GetViajeChofer(number_paginate:Int,page:Int,IdChofer:Int):GetAllViajesChofer @field(resolver: "Componentes@GetServiciosChofer")
+
+    GetUnidades(number_paginate:Int,page:Int,Id_placa:String):GetUnidades@field(resolver: "Componentes@GetUnidades")
+    GetEmpleados(number_paginate:Int,page:Int,IdChofer:String):GetEmpleados@field(resolver: "Componentes@GetEmpleados")
+    GetChoferes:[User!]@field(resolver: "Componentes@GetAllChoferes")
+}
+type GetEmpleados{
+    NroItems:Int
+    data:[Empleados!]
+}
+type GetUnidades{
+    NroItems:Int
+    data:[Unidades!]
+}
+type GetAllViajesChofer{
+    NroItems:Int
+    data:[Servicios!]
 }
 type GetTallerSolicitudes{
     NroItems:Int
@@ -37,7 +61,7 @@ type GetTallerSolicitudes{
 }
 type GetServiciosGastos{
     NroItems:Int
-    data:[ServiciosGastos!]
+    data:[Servicios!]
 }
 type GetAlamacenMovimiento{
     NroItems:Int
@@ -70,6 +94,18 @@ input TallerSolicitudesInput{
     Estado:Int
     IdUsuario:Int
 }
+type Servicios{
+    IdServicio:ID
+    FechaSalida:DateTime
+    Origen:String
+    Destino:String
+    ID:Int
+    Placa1:String
+    Liquidado:Int
+    IdChofer:Int
+
+    ServiciosGastos:[ServiciosGastos!]
+}
 type ServiciosGastos{
     IdGasto:ID
     IdTipoGasto:Int
@@ -86,9 +122,11 @@ type ServiciosGastos{
     Importe:Float
     FechaRegistro:String
     IdUsuario:Int
+    Foto:String
     Servicios:Servicios
     TipoDocumento:TipoDocumento
     TipoMoneda:TipoMoneda
+    TipoGastos:TipoGastos
     User:User
 
 }
@@ -109,29 +147,38 @@ input ServiciosGastosInput{
     FechaRegistro:DateTime
     IdUsuario:Int
 }
+type AlmacenMovDetalle{
+    Item:ID
+    Id:Int
+    IdProducto:Int
+    Ingresos:Int
+    Salidas:Int
+    Producto:AlmacenProductos
+}
+input AlmacenMovDetalleInput{
+    Item:ID
+    Id:Int
+    IdProducto:Int
+    Ingresos:Int
+    Salidas:Int
+}
 type AlmacenMovimientos{
     Id:ID
     Fecha:DateTime
     Numero:String
     IdMotivo:Int
-    IdProducto:Int
-    Ingresos:Int
-    Salidas:Int
     Detalle:String
     IdPlaca:Int
     AlmacenMotivos:AlmacenMotivos
-    Producto:AlmacenProductos
     Placa:Placas
-
+    AlmacenMovDetalle:[AlmacenMovDetalle!]
 }
+ 
 input AlmacenMovimientosInput{
     Id:ID
     Fecha:Date
     Numero:String
     IdMotivo:Int
-    IdProducto:Int
-    Ingresos:Int
-    Salidas:Int
     Detalle:String
     IdPlaca:Int
 }
@@ -180,14 +227,7 @@ type TipoDocumento{
     IdTipoDoc:ID
     Descripcion:String
 }
-type Servicios{
-    IdServicio:ID
-    FechaSalida:DateTime
-    Origen:String
-    Destino:String
-    Placa1:String
-    IdChofer:Int
-}
+
 type User {
     IdUsuario: ID
     NmUsuario: String
@@ -208,26 +248,52 @@ type Placas{
     ID:ID
     PLACA:String
 }
+type Empleados{
+    Id:Int
+    IdEmpleado:Int
+    IdTipoDoc:Int
+    Descripcion:String
+    FechaEmision:DateTime
+    FechaVence:DateTime
+    NmArchivo:String
+    Estado:Int
+    TipoDocumento:TipoDocumento
+}
+type Unidades{
+    Id:Int
+    IdUnidad:Int
+    IdTipoDoc:Int
+    Descripcion:String
+    FechaEmision:DateTime
+    FechaVence:DateTime
+    NmArchivo:String
+    Estado:Int
+    TipoDocumento:TipoDocumento
+}
 type Mutation {
     Login(
         input:UserInput! @spread
     ):User @field(resolver: "AuthMutator@Login")
 
     CreateAlmacenMovimientos(
-        input:AlmacenMovimientosInput! @spread
+        input:AlmacenMovimientosInput! @spread,
+        input1:[AlmacenMovDetalleInput!]@spread
     ):AlmacenMovimientos @field(resolver: "CrudAlmacenMovimientos@Create")
     UpdateAlmacenMovimientos(
-        input:AlmacenMovimientosInput! @spread
+        input:AlmacenMovimientosInput! @spread,
+        input1:[AlmacenMovDetalleInput!] @spread
     ):AlmacenMovimientos @field(resolver: "CrudAlmacenMovimientos@Update")
     DeleteAlmacenMovimientos(
         input:AlmacenMovimientosInput! @spread
     ):String @field(resolver: "CrudAlmacenMovimientos@Delete")
 
     CreateServicioGastos(
-        input:ServiciosGastosInput! @spread
+        input:ServiciosGastosInput! @spread,
+        Foto:Upload
     ):ServiciosGastos @field(resolver: "CrudServiciosGastos@Create")
     UpdateServicioGastos(
-        input:ServiciosGastosInput! @spread
+        input:ServiciosGastosInput! @spread,
+        Foto:Upload
     ):ServiciosGastos @field(resolver: "CrudServiciosGastos@Update")
     DeleteServicioGastos(
         input:ServiciosGastosInput! @spread

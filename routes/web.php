@@ -14,7 +14,14 @@ use Illuminate\Support\Facades\DB;
 */
 
 Route::get('/', function () {
-    $ciudades=DB::table('DbWSE.dbo.vAlmacenLineas')->get();
+    $ciudades=DB::table('DbWSE.dbo.AlmacenProductos')->get();
     dd($ciudades);
-    //return view('welcome');
+    //$contents = Storage::disk()->get('FotosServiciosGastos/2020-08/2018-dodge-challenger-srt-demon.jpg');
+    //return Response::make($contents)->header("Content-Type", 'image/jpg');
+
+});
+Route::get('imagenes/{nombre}', function ($nombre) {
+    $contents = Storage::disk()->get('FotosServiciosGastos/'.$nombre);
+    return Response::make($contents)->header("Content-Type", 'image/jpg');
+
 });
