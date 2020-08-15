@@ -67,7 +67,7 @@ class Componentes
     }
     public function GetAlmacenMotivos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $almacen_motivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->get();
+        $almacen_motivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->where('Tipo',$args['Tipo'])->get();
         return $almacen_motivos;
     }
     public function GetUnidades($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)

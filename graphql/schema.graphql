@@ -15,7 +15,7 @@ type Query {
     GetAllUsers: [User!] @field(resolver: "Usuarios@GetAllUsuarios")
     GetPlacas: [Placas!] @field(resolver: "Componentes@GetPlacas")
     GetServicios: [Servicios!] @field(resolver: "Componentes@GetServicios")
-    GetAlmacenMotivos: [AlmacenMotivos!] @field(resolver: "Componentes@GetAlmacenMotivos")
+    GetAlmacenMotivos(Tipo:Int): [AlmacenMotivos!] @field(resolver: "Componentes@GetAlmacenMotivos")
     GetProveedores: [Proveedores!] @field(resolver: "Componentes@GetProveedores")
     GetTipoDocumento: [TipoDocumento!] @field(resolver: "Componentes@GetTipoDocumento")
     GetTipoGasto: [TipoGastos!] @field(resolver: "Componentes@GetTipoGasto")
@@ -286,6 +286,9 @@ type Mutation {
     DeleteAlmacenMovimientos(
         input:AlmacenMovimientosInput! @spread
     ):String @field(resolver: "CrudAlmacenMovimientos@Delete")
+    DeleteDetalleAlmacenMovimientos(
+        item:Int @spread
+    ):String @field(resolver: "CrudAlmacenMovimientos@DeleteDetalle")
 
     CreateServicioGastos(
         input:ServiciosGastosInput! @spread,

@@ -72,36 +72,54 @@ class CrudAlmacenMovimientos
         ]);
         @$almacen_movimientos=DB::table('DbWSE.dbo.AlmacenMovimientos')->where('Id',$args['Id'])->first();
         foreach ($args['input1'] as $detalle){
-            $alamcen_detalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')->where('Id',$args['Id'])
-                            ->where('IdProducto',$detalle['IdProducto'])
+            @$alamcen_detalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                            ->where('Item',$detalle['Item'])
                             ->first();
-    
             if(isset($alamcen_detalle->Item)==true){
-                DB::table('DbWSE.dbo.AlmacenMovDetalle')
-                        ->where('Id',$args['Id'])
-                        ->where('IdProducto',$detalle['IdProducto'])->update([
-                                'Id'=>@$almacen_movimientos->Id,
-                                'IdProducto'=>$detalle['IdProducto'],
-                                'Ingresos'=>@$detalle['Ingresos'],
-                                'Salidas'=>@$detalle['Salidas'],
-                ]);
                 $productos=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$detalle['IdProducto'])->first();
                 if(isset($detalle['Ingresos'])==true){
-                    DB::table('DbWSE.dbo.AlmacenProductos')
-                    ->where('IdProducto',$detalle['IdProducto'])->update([
-                        'StockActual'=>(Float)$productos->StockActual+(Float)@$detalle['Ingresos']
-                    ]);
+                    $stock_ingreso_anterior=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                                    ->where('Item',$detalle['Item'])
+                                    ->first()->Ingresos;
+                    $diferencia=abs((Int)$stock_ingreso_anterior-(Int)$detalle['Ingresos']);
+                    if($diferencia>0){
+                        DB::table('DbWSE.dbo.AlmacenProductos')
+                        ->where('IdProducto',$detalle['IdProducto'])->update([
+                            'StockActual'=>((Float)$productos->StockActual-(Float)$stock_ingreso_anterior)+$diferencia
+                        ]);
+
+                        DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                            ->where('Item',$detalle['Item'])->update([
+                                    'Id'=>@$almacen_movimientos->Id,
+                                    'IdProducto'=>$detalle['IdProducto'],
+                                    'Ingresos'=>@$detalle['Ingresos'],
+                                    'Salidas'=>@$detalle['Salidas'],
+                        ]);
+                    }
                 }
                 else{
-                    DB::table('DbWSE.dbo.AlmacenProductos')
-                    ->where('IdProducto',$detalle['IdProducto'])->update([
-                        'StockActual'=>(Float)$productos->StockActual-(Float)@$detalle['Salidas']
-                    ]);
+                    $stock_salida_anterior=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                                    ->where('Item',$detalle['Item'])
+                                    ->first()->Salidas;
+                    $diferencia=abs((Int)$stock_salida_anterior-(Int)@$detalle['Salidas']);
+                    if($diferencia>0){
+                        DB::table('DbWSE.dbo.AlmacenProductos')
+                        ->where('IdProducto',$detalle['IdProducto'])->update([
+                            'StockActual'=>((Float)$productos->StockActual+(Float)$stock_salida_anterior)-$diferencia
+                        ]);
+                    }
+                    DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                            ->where('Item',$detalle['Item'])->update([
+                                    'Id'=>@$almacen_movimientos->Id,
+                                    'IdProducto'=>$detalle['IdProducto'],
+                                    'Ingresos'=>@$detalle['Ingresos'],
+                                    'Salidas'=>@$detalle['Salidas'],
+                        ]);
                 }
             }
             else{
                 DB::table('DbWSE.dbo.AlmacenMovDetalle')->insert([
-                    'Id'=>@$almacen_movimientos->Id,
+                    'Id'=>$almacen_movimientos->Id,
                     'IdProducto'=>$detalle['IdProducto'],
                     'Ingresos'=>@$detalle['Ingresos'],
                     'Salidas'=>@$detalle['Salidas'],
@@ -135,6 +153,27 @@ class CrudAlmacenMovimientos
     public function Delete($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         DB::table('DbWSE.dbo.AlmacenMovimientos')->where('Id',$args['Id'])->delete();
+        return "Exito";
+    }
+    public function DeleteDetalle($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    {
+        @$stock_anterior=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                                    ->where('Item',$args['item'])
+                                    ->first();
+        @$productos=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',@$stock_anterior->IdProducto)->first();
+        if(isset($stock_anterior->Ingresos)==true){
+            DB::table('DbWSE.dbo.AlmacenProductos')
+                        ->where('IdProducto',@$productos->IdProducto)->update([
+                            'StockActual'=>((Float)$productos->StockActual-(Float)$stock_anterior->Ingresos)
+                        ]);
+        }
+        if(isset($stock_anterior->Salidas)==true){
+            DB::table('DbWSE.dbo.AlmacenProductos')
+                        ->where('IdProducto',@$productos->IdProducto)->update([
+                            'StockActual'=>((Float)$productos->StockActual+(Float)$stock_anterior->Salidas)
+                        ]);
+        }
+        DB::table('DbWSE.dbo.AlmacenMovDetalle')->where('item',$args['item'])->delete();
         return "Exito";
     }
 }
