@@ -27,7 +27,7 @@ type Query {
     GetProducto(IdProducto:Int): AlmacenProductos @field(resolver: "Productos@GetProductosDetalle")
     
 
-    GetAllAlmacenMovimientos(number_paginate:Int,page:Int,Tipo:Int): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
+    GetAllAlmacenMovimientos(number_paginate:Int,page:Int,Tipo:Int,nombre_producto:String,PLACA:String): GetAlamacenMovimiento @field(resolver: "AlmacenMovimientos@GetAllAlmacenMovimientos")
     GetDetalleAlmacenMovimientos(id:Int): AlmacenMovimientos @field(resolver: "AlmacenMovimientos@GetDetalleAlmacenMovimientos")
 
     GetAllServiciosGastos(number_paginate:Int,page:Int): GetServiciosGastos @field(resolver: "ServiciosGastos@GetAllServiciosGastos")

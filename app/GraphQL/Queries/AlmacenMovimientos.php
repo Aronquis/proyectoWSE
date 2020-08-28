@@ -18,17 +18,30 @@ class AlmacenMovimientos
      */
     public function GetAllAlmacenMovimientos($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
+        $array_id_almacenMov=[];
+        $almacen_movDetalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')
+                ->join('DbWSE.dbo.AlmacenProductos','DbWSE.dbo.AlmacenProductos.IdProducto','=','DbWSE.dbo.AlmacenMovDetalle.IdProducto')
+                ->where('DbWSE.dbo.AlmacenProductos.Descripcion','LIKE','%'.$args['nombre_producto'].'%')
+                ->get();
+        $array_id_almacenMov=$almacen_movDetalle->pluck('Id')->toArray();
+        ///////
         $almacen_movimientos=DB::table('DbWSE.dbo.AlmacenMovimientos')
             ->join('DbWSE.dbo.vAlmacenMotivos','DbWSE.dbo.vAlmacenMotivos.IdMotivo','=','DbWSE.dbo.AlmacenMovimientos.IdMotivo')
+            ->join('DbWSE.dbo.Placas','DbWSE.dbo.Placas.ID','DbWSE.dbo.AlmacenMovimientos.IdPlaca')
             ->select('DbWSE.dbo.AlmacenMovimientos.*')
             ->where('DbWSE.dbo.vAlmacenMotivos.Tipo',$args['Tipo'])
+            ->where('DbWSE.dbo.Placas.PLACA','LIKE','%'.$args['PLACA'].'%')
+            ->whereIn('DbWSE.dbo.AlmacenMovimientos.Id',$array_id_almacenMov)
             ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
+            
             foreach($almacen_movimientos as $almacen){
                 @$almacen->AlmacenMovDetalle=DB::table('DbWSE.dbo.AlmacenMovDetalle')
                                                 ->where('Id',$almacen->Id)
                                                 ->get();
                 foreach(@$almacen->AlmacenMovDetalle as $productos){
-                    $productos->Producto=DB::table('DbWSE.dbo.AlmacenProductos')->where('IdProducto',$productos->IdProducto)->first();
+                    $productos->Producto=DB::table('DbWSE.dbo.AlmacenProductos')
+                                        ->where('IdProducto',$productos->IdProducto)
+                                        ->first();
                 }
                 $almacen->Placa=DB::table('DbWSE.dbo.Placas')->where('ID',$almacen->IdPlaca)->first();
                 $almacen->AlmacenMotivos=DB::table('DbWSE.dbo.vAlmacenMotivos')->where('IdMotivo',$almacen->IdMotivo)->first();

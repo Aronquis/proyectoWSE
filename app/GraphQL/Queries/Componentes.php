@@ -32,6 +32,7 @@ class Componentes
             ->join('DbWSE.dbo.Placas','DbWSE.dbo.Placas.PLACA','=','DbWSE.dbo.Servicios.Placa1')
             ->where('DbWSE.dbo.Servicios.Liquidado',0)
             ->where('DbWSE.dbo.Servicios.IdChofer',$args['IdChofer'])
+            ->orderBy('DbWSE.dbo.Servicios.IdServicio', 'desc')
             ->paginate($perPage = $args['number_paginate'], $columns = ['*'], $pageName = 'page', $page = $args['page']);
         return ['NroItems'=>$servicios->total(),'data'=>$servicios];
     }
