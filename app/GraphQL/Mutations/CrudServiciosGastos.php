@@ -36,7 +36,7 @@ class CrudServiciosGastos
                 $i+=1; 
             }
             /////////////////////////////////
-            $nameCreate =$fileNameNuevo. '.' .'webp';
+            $nameCreate =$fileNameNuevo. '.' .'jpg';
             $image->storeAs('FotosServiciosGastos/', $nameCreate, 'local');
         }
         DB::table('DbWSE.dbo.ServiciosGastos')->insert([
@@ -84,7 +84,7 @@ class CrudServiciosGastos
             }
             /////////////////////////////////
 
-            $nameCreate =$fileNameNuevo. '.' .'webp';
+            $nameCreate =$fileNameNuevo. '.' .'jpg';
             $image->storeAs('FotosServiciosGastos/', $nameCreate, 'local');
             DB::table('DbWSE.dbo.ServiciosGastos')->where('DbWSE.dbo.ServiciosGastos.IdGasto',$args['IdGasto'])->Update([
                 'Foto'=>$nameCreate,
